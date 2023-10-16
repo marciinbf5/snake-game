@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snake Game</title>
+    <style>
+        #snake-board {
+            width: 1000px;
+            height: 1000px;
+            background-color: #000;
+            position: relative;
+        }
+ 
+        .snake-dot {
+            width: 20px;
+            height: 20px;
+            background-color: #fff;
+            border-radius: 50%;
+            position: absolute;
+        }
+        
+        .food {
+            background-color: #f00;
+        }
+    </style>
+</head>
+<body>
+    <h1>Snake Game</h1>
+ 
+    <div id="snake-board"></div>
+ 
+    <script>
+        var board = document.getElementById("snake-board");
+        var length = 3;
+        var direction = "right";
+        var snake = [];
+        var food;
+ 
+        function createSnake() {
+            for (var i = length - 1; i >= 0; i--) {
+                snake.push({ x: i, y: 0 });
+            }
+        }
+ 
+        function createFood() {
+            food = {
+                x: Math.floor(Math.random() * 20),
+                y: Math.floor(Math.random() * 20)
+            }
+            for (var i = 0; i < snake.length; i++) {
+                if (snake[i].x === food.x && snake[i].y === food.y) {
+                    createFood();
+                    break;
+                }
+            }
+        }
+ 
+        function draw() {
+            board.innerHTML = '';
+            for (var i = 0; i < snake.length; i++) {
+                var snakeDot = document.createElement('div');
+                snakeDot.classList.add('snake-dot');
+                snakeDot.style.left = snake[i].x * 20 + 'px';
+                snakeDot.style.top = snake[i].y * 20 + 'px';
+                board.appendChild(snakeDot);
+            }
+ 
+            var foodDot = document.createElement('div');
+            foodDot.classList.add('snake-dot', 'food');
+            foodDot.style.left = food.x * 20 + 'px';
+            foodDot.style.top = food.y * 20 + 'px';
+            board.appendChild(foodDot);
+        }
+ 
+        function move() {
+            var headX = snake[0].x;
+            var headY = snake[0].y;
+ 
+            if (direction === "right") headX++;
+            if (direction === "left") headX--;
+            if (direction === "up") headY--;
+            if (direction === "down") headY++;
+ 
+            var newHead = { x: headX, y: headY };
+            snake.unshift(newHead);
+ 
+            if (headX === food.x && headY === food.y) {
+                length++;
+                createFood();
+            } else {
+                snake.pop();
+            }
+ 
+            draw();
+        }
+ 
+        function changeDirection(event) {
+            var key = event.keyCode;
+ 
+            if (key === 37 && direction !== "right") direction = "left";
+            if (key === 38 && direction !== "down") direction = "up";
+            if (key === 39 && direction !== "left") direction = "right";
+            if (key === 40 && direction !== "up") direction = "down";
+        }
+ 
+        function checkCollision() {
+            var headX = snake[0].x;
+            var headY = snake[0].y;
+ 
+            if (headX < 0 || headY < 0 || headX >= 20 || headY >= 20) {
+                clearInterval(game);
+                alert("Game Over");
+            }
+ 
+            for (var i = 1; i < snake.length; i++) {
+                if (headX === snake[i].x && headY === snake[i].y) {
+                    clearInterval(game);
+                    alert("Game Over");
+                    break;
+                }
+            }
+        }
+ 
+        createSnake();
+        createFood();
+        var game = setInterval(move, 200);
+ 
+        document.addEventListener("keydown", changeDirection);
+    </script>
+</body>
+</html>
